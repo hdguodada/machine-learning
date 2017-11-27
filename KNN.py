@@ -22,3 +22,21 @@ def classify0(inX, dataSet, labels, k):
         classCount[voteIlabel] = classCount.get(voteIlabel, 0) + 1
         sortedClassCount = sorted(classCount.items(), key=operator.itemgetter(1), reverse=True)
     return sortedClassCount[0][0]
+
+
+def file2matrix(filename):
+    fr = open(filename)
+    arrayOlines = fr.readlines()
+    # 文件行数
+    numberOfLines = len(arrayOlines)
+    # 创建以0填充的矩阵。
+    returnMat = zeros((numberOfLines, 3))
+    classLabelVector = []
+    index = 0
+    for line in arrayOlines:
+        line = line.strip()
+        listFromLine = line.split('\t')
+        returnMat[index, :] = listFromLine[0:3]
+        classLabelVector.append(listFromLine[-1])
+        index += 1
+    return returnMat, classLabelVector
