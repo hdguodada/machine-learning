@@ -9,18 +9,26 @@ def createDateSet():
 
 
 def classify0(inX, dataSet, labels, k):
+    #数据的一维长度
     dataSetSize = dataSet.shape[0]
-    # 距离计算
+    #  1.若reps为一个数字n，则构造一个重复n次的一维的A‘
+
+    #  2.若reps为一个元组(m,n)，则构造一个m行n列的矩阵，其中每个元素均为A，这样就形成了矩阵
     diffMat = tile(inX, (dataSetSize,1)) - dataSet
     sqDiffMat = diffMat**2
     sqDistance = sqDiffMat.sum(axis=1)
+    # 输入向量点与已知数据各点的距离
     distances = sqDistance**0.5
+    # sortedDistIndicies 是距离最近从小到大排序的索引值的列表
     sortedDistIndicies = distances.argsort()
     classCount={}
     for i in range(k):
+        # 距离最近的点的类别
         voteIlabel = labels[sortedDistIndicies[i]]
+        # 类别数+1
         classCount[voteIlabel] = classCount.get(voteIlabel, 0) + 1
         sortedClassCount = sorted(classCount.items(), key=operator.itemgetter(1), reverse=True)
+    # 获得距离最近的类别
     return sortedClassCount[0][0]
 
 
@@ -66,8 +74,15 @@ def datingClassTest():
     numTestVecs = int(m*hoRatio)
     errorCount = 0.0
     for i in range(numTestVecs):
-        classifierResult = classify0(normMat[i,:], normMat[numTestVecs,:], datingLabels[numTestVecs:m], 3)
+        a = normMat[i,:]
+        b = normMat[numTestVecs:m,:]
+        c = datingLabels[numTestVecs:m]
+        classifierResult = classify0(a, b, c, 3)
         print('the classifier came back with : %d, the real answer is : %d'%(classifierResult, datingLabels[i]))
         if (classifierResult != datingLabels[i]):
             errorCount += 1
             print('the total error rate is :%f'%(errorCount/float(numTestVecs)))
+
+
+if __name__ == '__main__':
+    datingClassTest()
