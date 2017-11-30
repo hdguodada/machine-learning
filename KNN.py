@@ -42,8 +42,11 @@ def file2matrix(filename):
     classLabelVector = []
     index = 0
     for line in arrayOlines:
+        # 每行有4个数据
         line = line.strip()
+        # 4数据组成的list
         listFromLine = line.split('\t')
+        # 将数据转化为矩阵
         returnMat[index, :] = listFromLine[0:3]
         if listFromLine[-1] == 'didntLike':
             classLabelVector.append(1)
@@ -67,7 +70,7 @@ def autoNorm(dataSet):
 
 
 def datingClassTest():
-    hoRatio = 0.10
+    hoRatio = 0.05
     datingDataMat, datingLabels = file2matrix('datingTestSet.txt')
     normMat, ranges, minVals = autoNorm(datingDataMat)
     m = normMat.shape[0]
@@ -84,5 +87,17 @@ def datingClassTest():
             print('the total error rate is :%f'%(errorCount/float(numTestVecs)))
 
 
+def classifyPerson():
+    resultList = ['not at all', 'in small does', 'in large doses']
+    percentTats = float(input('percentage of time spent playing video games'))
+    ffMiles = float(input('frequent flier miles earned per year?'))
+    iceCream = float(input('liters of ice cream consumed per year?'))
+    datingDataMat, datingLabels = file2matrix('datingTestSet.txt')
+    normMat, ranges, minVals = autoNorm(datingDataMat)
+    inArr = array([ffMiles, percentTats, iceCream])
+    classifierResult = classify0((inArr-minVals)/ranges, normMat, datingLabels, 3)
+    print('you will probably like this person:', resultList[classifierResult-1])
+
+
 if __name__ == '__main__':
-    datingClassTest()
+    classifyPerson()

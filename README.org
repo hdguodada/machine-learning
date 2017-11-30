@@ -19,3 +19,71 @@
 |每年获得的飞行常客里程数|玩视频游戏所耗时时间百分比|每周消费的冰激凌公升数|
 
 - 创建file2matrix函数
+#+BEGIN_SRC python
+  def file2matrix(filename):
+      fr = open(filename)
+      arrayOlines = fr.readlines()
+      # 文件行数
+      numberOfLines = len(arrayOlines)
+      # 创建以0填充的矩阵。
+      returnMat = zeros((numberOfLines, 3))
+      classLabelVector = []
+      index = 0
+      for line in arrayOlines:
+          # 每行有4个数据
+          line = line.strip()
+          # 4数据组成的list
+          listFromLine = line.split('\t')
+          # 将数据转化为矩阵
+          returnMat[index, :] = listFromLine[0:3]
+          if listFromLine[-1] == 'didntLike':
+              classLabelVector.append(1)
+          elif listFromLine[-1] == 'smallDoses':
+              classLabelVector.append(2)
+          elif listFromLine[-1] == 'largeDoses':
+              classLabelVector.append(3)
+          index += 1
+      return returnMat, classLabelVector
+
+#+END_SRC
+- 代码主要功能
+将文本数据转化为矩阵数据，将特征值转变为矩阵里的数学值，并将‘不喜欢’，‘一点喜欢’， ‘非常喜欢’转变未1-3的数字。
+返回 训练样本矩阵和类标签向量。
+- 归一化数值
+#+BEGIN_SRC python
+  #newvalue = (oldvalue-min)/(max-min)
+  def autoNorm(dataSet):
+      minVals = dataSet.min(0)
+      maxVals = dataSet.max(0)
+      ranges = maxVals - minVals
+      normDataSet = zeros(shape(dataSet))
+      m = dataSet.shape[0]
+      normDataSet = dataSet - tile(minVals, (m, 1))
+      normDataSet = normDataSet/tile(ranges, (m, 1))
+      return normDataSet, ranges, minVals
+#+END_SRC
+  代码功能，将矩阵数据转换为0-1之间的数据。
+- 测试算法
+取已提供数据的90%作为训练样本集，而其余的10%数据去测试分类器，检测分类器的正确率。
+#+BEGIN_SRC python
+  def datingClassTest():
+      hoRatio = 0.05
+      datingDataMat, datingLabels = file2matrix('datingTestSet.txt')
+      normMat, ranges, minVals = autoNorm(datingDataMat)
+      m = normMat.shape[0]
+      numTestVecs = int(m*hoRatio)
+      errorCount = 0.0
+      for i in range(numTestVecs):
+          a = normMat[i,:]
+          b = normMat[numTestVecs:m,:]
+          c = datingLabels[numTestVecs:m]
+          classifierResult = classify0(a, b, c, 3)
+          print('the classifier came back with : %d, the real answer is : %d'%(classifierResult, datingLabels[i]))
+          if (classifierResult != datingLabels[i]):
+              errorCount += 1
+              print('the total error rate is :%f'%(errorCount/float(numTestVecs)))
+
+#+END_SRC
+
+
+- 构建完整可用系统
