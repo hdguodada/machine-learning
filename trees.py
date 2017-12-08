@@ -18,8 +18,8 @@ def calcShanonEnt(dataSet):
         labelCouts[currentLabel] += 1
     shannonEnt = 0.0
     for key in labelCouts:
-        prob = float(labelCouts[key]/numEntries)
-        shannonEnt -= prob*log(prob, 2)
+        prob = float(labelCouts[key] / numEntries)
+        shannonEnt -= prob * log(prob, 2)
     return shannonEnt
 
 
@@ -29,11 +29,11 @@ def createDataSet():
     :return:
     """
     dataSet = [
-        [1,1,'yes'],
-        [1,1,'yes'],
-        [1,0,'no'],
-        [0,1,'no'],
-        [0,1,'no'],
+        [1, 1, 'yes'],
+        [1, 1, 'yes'],
+        [1, 0, 'no'],
+        [0, 1, 'no'],
+        [0, 1, 'no'],
     ]
     labels = [
         'no surfacing', 'flippers'
@@ -53,12 +53,36 @@ def splitDataSet(dataSet, axis, value):
     for featVec in dataSet:
         if featVec[axis] == value:
             reducedFeatVec = featVec[: axis]
-            reducedFeatVec.extend(featVec[axis+1:])
+            reducedFeatVec.extend(featVec[axis + 1:])
             retDataSet.append(reducedFeatVec)
     return retDataSet
 
 
+def chooseBestFeatureTosplit(dataset):
+    """
+    选择最好的数据集划分方式
+    :param dataset:
+    :return:
+    """
+    numFeatures = len(dataset[0]) - 1  # 特征数
+    baseEntropy = calcShanonEnt(dataset)  # 整个数据的原始香农熵
+    bestInfoGain = 0.0
+    bestFeature = 1
+    for i in range(numFeatures):
+        featList = [example[i] for example in dataset]  # 特征列表
+        uniqueVals = set(featList)  # 去除重复特征
+        newEntropy = 0.0
+        for value in uniqueVals:
+            subDataSet = splitDataSet(dataset, i, value)
+            prob = len(subDataSet) / float(len(dataset))
+            newEntropy += prob * calcShanonEnt(subDataSet)
+            infoGain = baseEntropy - newEntropy
+        if (infoGain > bestInfoGain):
+            bestInfoGain = infoGain
+            bestFeature = i
+    return bestFeature
+
+
 if __name__ == '__main__':
     mydat, labels = createDataSet()
-    print(splitDataSet(mydat,0,1))
-    print(splitDataSet(mydat,0,0))
+    print(chooseBestFeatureTosplit(mydat))
